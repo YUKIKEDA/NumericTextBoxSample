@@ -1,0 +1,26 @@
+﻿<Window
+    x:Class="NumericTextBoxSample.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:NumericTextBoxSample"
+    Title="MainWindow"
+    Width="800"
+    Height="450"
+    mc:Ignorable="d">
+    <StackPanel>
+        <local:NumericTextBox x:Name="numericTextBox" 
+                             Width="100" 
+                             Minimum="-100" 
+                             Maximum="100"
+                             IncludeMinimum="False"
+                             IncludeMaximum="True"
+                             MinimumValidationMessage="最小値（-100）より大きい値を入力してください"
+                             MaximumValidationMessage="最大値（100）以下の値を入力してください"
+                             FormatValidationMessage="数値を入力してください"/>
+        <TextBlock Text="{Binding ValidationMessage, ElementName=numericTextBox}"
+                   Foreground="Red"
+                   Margin="0,5,0,0"/>
+    </StackPanel>
+</Window>
