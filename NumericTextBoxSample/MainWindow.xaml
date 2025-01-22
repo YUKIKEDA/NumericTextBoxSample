@@ -18,7 +18,9 @@
                              IncludeMaximum="True"
                              MinimumValidationMessage="最小値（-100）より大きい値を入力してください"
                              MaximumValidationMessage="最大値（100）以下の値を入力してください"
-                             FormatValidationMessage="数値を入力してください"/>
+                             FormatValidationMessage="数値を入力してください"
+                             IntegerOnly="True"
+                             />
         <TextBlock Text="{Binding ValidationMessage, ElementName=numericTextBox}"
                    Foreground="Red"
                    Margin="0,5,0,0"/>

@@ -5,10 +5,16 @@ using System.Windows.Input;
 
 namespace NumericTextBoxSample
 {
-    public class NumericTextBox : TextBox
+    public partial class NumericTextBox : TextBox
     {
-        // 数値のみを許可する正規表現パターン
-        private static readonly Regex _numericRegex = new Regex("[^0-9.-]+");
+        [GeneratedRegex("[^0-9.-]+", RegexOptions.Compiled)]
+        private static partial Regex NumericRegex();
+
+        [GeneratedRegex("[^0-9-]+", RegexOptions.Compiled)]
+        private static partial Regex IntegerRegex();
+
+        private static readonly Regex _numericRegex = NumericRegex();
+        private static readonly Regex _integerRegex = IntegerRegex();
 
         public NumericTextBox()
         {
@@ -39,7 +45,7 @@ namespace NumericTextBoxSample
 
         private bool IsTextNumeric(string text)
         {
-            return _numericRegex.IsMatch(text);
+            return IntegerOnly ? _integerRegex.IsMatch(text) : _numericRegex.IsMatch(text);
         }
 
         // 数値の最小値プロパティ
@@ -125,6 +131,16 @@ namespace NumericTextBoxSample
             DependencyProperty.Register("FormatValidationMessage", typeof(string), typeof(NumericTextBox), 
                 new PropertyMetadata(string.Empty));
 
+        // 整数入力限定プロパティ
+        public bool IntegerOnly
+        {
+            get { return (bool)GetValue(IntegerOnlyProperty); }
+            set { SetValue(IntegerOnlyProperty, value); }
+        }
+
+        public static readonly DependencyProperty IntegerOnlyProperty =
+            DependencyProperty.Register("IntegerOnly", typeof(bool), typeof(NumericTextBox), new PropertyMetadata(false));
+
         // 値の検証
         protected override void OnTextChanged(TextChangedEventArgs e)
         {
@@ -136,9 +152,22 @@ namespace NumericTextBoxSample
                 return;
             }
 
-            if (double.TryParse(Text, out double value))
+            bool isValid;
+            double doubleValue;
+            
+            if (IntegerOnly)
             {
-                if ((IncludeMinimum && value < Minimum) || (!IncludeMinimum && value <= Minimum))
+                isValid = int.TryParse(Text, out int intValue);
+                doubleValue = intValue;
+            }
+            else
+            {
+                isValid = double.TryParse(Text, out doubleValue);
+            }
+
+            if (isValid)
+            {
+                if ((IncludeMinimum && doubleValue < Minimum) || (!IncludeMinimum && doubleValue <= Minimum))
                 {
                     ValidationMessage = !string.IsNullOrEmpty(MinimumValidationMessage)
                         ? MinimumValidationMessage
@@ -146,7 +175,7 @@ namespace NumericTextBoxSample
                             ? $"Value must be greater than or equal to {Minimum}."
                             : $"Value must be greater than {Minimum}.";
                 }
-                else if ((IncludeMaximum && value > Maximum) || (!IncludeMaximum && value >= Maximum))
+                else if ((IncludeMaximum && doubleValue > Maximum) || (!IncludeMaximum && doubleValue >= Maximum))
                 {
                     ValidationMessage = !string.IsNullOrEmpty(MaximumValidationMessage)
                         ? MaximumValidationMessage
@@ -163,7 +192,7 @@ namespace NumericTextBoxSample
             {
                 ValidationMessage = !string.IsNullOrEmpty(FormatValidationMessage)
                     ? FormatValidationMessage
-                    : "Please enter a valid number.";
+                    : IntegerOnly ? "Please enter a valid integer." : "Please enter a valid number.";
             }
         }
     }
